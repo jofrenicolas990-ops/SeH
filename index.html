@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuestionario de Higiene y Seguridad en el Trabajo</title>
+
+  <!-- Google Fonts: Syne (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       VARIABLES Y RESET
+    ============================================================ */
+    :root {
+      --bg:         #F5F3EE;
+      --surface:    #FFFFFF;
+      --border:     #E0DDD6;
+      --accent:     #1A3A2A;      /* verde oscuro institucional */
+      --accent2:    #D4A843;      /* ámbar, acento vibrante     */
+      --text:       #1C1C1C;
+      --muted:      #6B6B6B;
+      --low:        #C0392B;
+      --med:        #D4A843;
+      --high:       #27AE60;
+      --radius:     14px;
+      --shadow:     0 4px 24px rgba(0,0,0,.08);
+      --transition: .35s cubic-bezier(.4,0,.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ============================================================
+       CABECERA
+    ============================================================ */
+    header {
+      width: 100%;
+      background: var(--accent);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1rem, 2.2vw, 1.35rem);
+      color: #fff;
+      letter-spacing: -.01em;
+      line-height: 1.2;
+    }
+
+    header .shield {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    #btn-panel {
+      background: var(--accent2);
+      color: var(--accent);
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: opacity var(--transition);
+      white-space: nowrap;
+    }
+    #btn-panel:hover { opacity: .85; }
+
+    /* ============================================================
+       CONTENEDOR PRINCIPAL
+    ============================================================ */
+    main {
+      width: 100%;
+      max-width: 740px;
+      padding: 32px 20px 60px;
+      flex: 1;
+    }
+
+    /* ============================================================
+       PANTALLAS (vistas)
+    ============================================================ */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ============================================================
+       PANTALLA: REGISTRO
+    ============================================================ */
+    #screen-register .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px 36px;
+      border: 1px solid var(--border);
+    }
+
+    #screen-register h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    #screen-register p.subtitle {
+      color: var(--muted);
+      margin-bottom: 28px;
+      font-size: .95rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 7px;
+      font-size: .9rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color var(--transition);
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent);
+    }
+
+    .error-msg {
+      color: var(--low);
+      font-size: .82rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* ============================================================
+       PANTALLA: CUESTIONARIO
+    ============================================================ */
+
+    /* Progreso */
+    .progress-wrap {
+      margin-bottom: 24px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width .5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* Tarjeta de pregunta */
+    .question-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 36px 28px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+
+      /* animación de entrada */
+      animation: slideIn .35s ease forwards;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .q-number {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 14px;
+    }
+
+    .q-text {
+      font-size: 1.08rem;
+      font-weight: 500;
+      line-height: 1.55;
+      margin-bottom: 26px;
+    }
+
+    /* Opciones */
+    .options-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .option-item label {
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      cursor: pointer;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      transition: border-color var(--transition), background var(--transition);
+      font-size: .93rem;
+      line-height: 1.45;
+    }
+
+    .option-item label:hover {
+      border-color: var(--accent);
+      background: #EDF4F0;
+    }
+
+    /* Ocultar radio nativo */
+    .option-item input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+    }
+
+    /* Radio personalizado */
+    .radio-circle {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color var(--transition), background var(--transition);
+    }
+
+    .radio-circle::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fff;
+      display: none;
+    }
+
+    .option-item input[type="radio"]:checked + label {
+      border-color: var(--accent);
+      background: #EDF4F0;
+    }
+
+    .option-item input[type="radio"]:checked + label .radio-circle {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .option-item input[type="radio"]:checked + label .radio-circle::after {
+      display: block;
+    }
+
+    /* Alerta sin respuesta */
+    .alert-answer {
+      color: var(--low);
+      font-size: .83rem;
+      margin-top: 14px;
+      font-weight: 500;
+      display: none;
+    }
+
+    /* Botones de navegación */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 28px;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 11px 26px;
+      border-radius: 9px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: .92rem;
+      cursor: pointer;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-accent {
+      background: var(--accent2);
+      color: var(--accent);
+    }
+
+    .btn-danger {
+      background: #fce8e6;
+      color: var(--low);
+      border: 1.5px solid #f5c6c3;
+    }
+
+    .btn:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ============================================================
+       PANTALLA: RESULTADO
+    ============================================================ */
+    #screen-result .result-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .result-banner {
+      padding: 36px 36px 28px;
+      text-align: center;
+    }
+
+    .result-banner.low  { background: #fdf0ef; }
+    .result-banner.med  { background: #fdf8ec; }
+    .result-banner.high { background: #edf7f0; }
+
+    .result-icon { font-size: 3.2rem; margin-bottom: 10px; }
+
+    .result-level {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.55rem;
+      margin-bottom: 6px;
+    }
+
+    .result-level.low  { color: var(--low);  }
+    .result-level.med  { color: var(--med);  }
+    .result-level.high { color: var(--high); }
+
+    .result-score {
+      font-size: 2.6rem;
+      font-weight: 700;
+      font-family: 'Syne', sans-serif;
+      margin-bottom: 4px;
+    }
+
+    .result-score-label {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    .result-message {
+      font-size: .95rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .result-body {
+      padding: 28px 36px 36px;
+      border-top: 1px solid var(--border);
+    }
+
+    .result-body h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 16px;
+    }
+
+    /* Resumen de respuestas en resultado */
+    .answers-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .answer-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 12px 16px;
+      font-size: .85rem;
+      line-height: 1.4;
+    }
+
+    .answer-row .ar-q { font-weight: 500; margin-bottom: 3px; }
+    .answer-row .ar-a { color: var(--muted); }
+    .answer-row .ar-score {
+      float: right;
+      font-weight: 600;
+      font-size: .8rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 5px;
+      padding: 2px 8px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       PANTALLA: PANEL DE RESULTADOS
+    ============================================================ */
+    #screen-panel h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    #screen-panel .panel-subtitle {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-bottom: 24px;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* Tabla */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      font-size: .88rem;
+    }
+
+    thead th {
+      background: var(--accent);
+      color: #fff;
+      padding: 13px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: .8rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg); }
+
+    tbody td {
+      padding: 12px 16px;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .badge.low  { background: #fce8e6; color: var(--low);  }
+    .badge.med  { background: #fdf8ec; color: #8A6A00;     }
+    .badge.high { background: #edf7f0; color: #1A6B3C;     }
+
+    .btn-detail {
+      padding: 5px 12px;
+      font-size: .78rem;
+      border-radius: 6px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      transition: border-color var(--transition);
+    }
+    .btn-detail:hover { border-color: var(--accent); }
+
+    .btn-del-row {
+      padding: 5px 10px;
+      font-size: .78rem;
+      border-radius: 6px;
+      background: #fce8e6;
+      border: 1.5px solid #f5c6c3;
+      color: var(--low);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      transition: opacity var(--transition);
+    }
+    .btn-del-row:hover { opacity: .8; }
+
+    /* Modal detalle */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 48px rgba(0,0,0,.2);
+      width: 100%;
+      max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    .modal-box h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      margin-bottom: 4px;
+    }
+
+    .modal-meta {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    /* Sin registros */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 540px) {
+      header { flex-wrap: wrap; gap: 10px; }
+      .question-card { padding: 24px 20px 20px; }
+      #screen-register .card { padding: 28px 20px; }
+      .result-banner { padding: 28px 20px 20px; }
+      .result-body { padding: 20px 20px 28px; }
+      .nav-buttons { flex-direction: column-reverse; }
+      .nav-buttons .btn { width: 100%; text-align: center; }
+      .result-actions { flex-direction: column; }
+      .result-actions .btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     CABECERA
+============================================================ -->
+<header>
+  <span class="shield">🦺</span>
+  <h1>Cuestionario de Higiene y Seguridad en el Trabajo</h1>
+  <button id="btn-panel" onclick="showPanel()">📊 Panel de resultados</button>
+</header>
+
+<main>
+
+  <!-- ==========================================
+       PANTALLA 1: REGISTRO DE USUARIO
+  =========================================== -->
+  <div id="screen-register" class="screen active">
+    <div class="card">
+      <h2>Antes de comenzar…</h2>
+      <p class="subtitle">Completá los datos para registrar tu resultado. Solo te tomará un momento.</p>
+
+      <div class="form-group">
+        <label for="input-nombre">Nombre completo *</label>
+        <input type="text" id="input-nombre" placeholder="Ej.: María García" autocomplete="off" />
+        <span class="error-msg" id="err-nombre">Por favor ingresá tu nombre.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="input-sector">Sector o puesto de trabajo *</label>
+        <input type="text" id="input-sector" placeholder="Ej.: Logística / Operario de depósito" autocomplete="off" />
+        <span class="error-msg" id="err-sector">Por favor ingresá tu sector o puesto.</span>
+      </div>
+
+      <div style="margin-top: 28px;">
+        <button class="btn btn-primary" onclick="startQuiz()" style="width:100%; padding:14px;">Iniciar cuestionario →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       PANTALLA 2: CUESTIONARIO
+  =========================================== -->
+  <div id="screen-quiz" class="screen">
+
+    <!-- Barra de progreso -->
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="q-counter">Pregunta 1 de 15</span>
+        <span id="q-percent">0 %</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Tarjeta de pregunta (se re-renderiza con JS) -->
+    <div id="question-card" class="question-card">
+      <!-- contenido dinámico -->
+    </div>
+
+    <!-- Botones de navegación -->
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" id="btn-prev" onclick="prevQuestion()">← Anterior</button>
+      <button class="btn btn-primary"   id="btn-next" onclick="nextQuestion()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       PANTALLA 3: RESULTADO FINAL
+  =========================================== -->
+  <div id="screen-result" class="screen">
+    <div class="result-card">
+      <div class="result-banner" id="result-banner">
+        <div class="result-icon" id="result-icon"></div>
+        <div class="result-level" id="result-level"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-score-label">puntos totales</div>
+        <div class="result-message" id="result-message"></div>
+      </div>
+      <div class="result-body">
+        <h3>📋 Detalle de tus respuestas</h3>
+        <div class="answers-summary" id="answers-summary"></div>
+        <div class="result-actions">
+          <button class="btn btn-primary"    onclick="restartQuiz()">🔄 Reiniciar cuestionario</button>
+          <button class="btn btn-secondary"  onclick="showPanel()">📊 Ver panel de resultados</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       PANTALLA 4: PANEL DE RESULTADOS
+  =========================================== -->
+  <div id="screen-panel" class="screen">
+    <h2>📊 Panel de resultados</h2>
+    <p class="panel-subtitle">Todos los cuestionarios completados en este dispositivo.</p>
+    <div class="panel-actions">
+      <button class="btn btn-secondary" onclick="goHome()">← Volver al inicio</button>
+      <button class="btn btn-danger"    onclick="clearAllRecords()">🗑 Borrar todos los registros</button>
+    </div>
+    <div id="panel-content"><!-- dinámico --></div>
+  </div>
+
+</main>
+
+<!-- MODAL detalle de respuestas -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+<script>
+/* ================================================================
+   BANCO DE PREGUNTAS
+   Estructura de cada pregunta:
+   {
+     texto: "...",
+     opciones: [
+       { texto: "...", puntaje: N },
+       ...  (4 opciones)
+     ]
+   }
+   Puntaje por opción: 0 a 3
+   Puntaje máximo total: 15 preguntas × 3 = 45 puntos
+
+   Clasificación:
+     Bajo:  0  – 19  puntos
+     Medio: 20 – 34  puntos
+     Alto:  35 – 45  puntos
+================================================================ */
+const PREGUNTAS = [
+  {
+    texto: "¿Cuál es el peso máximo recomendado para levantar manualmente de forma segura en la mayoría de los contextos laborales?",
+    opciones: [
+      { texto: "Sin límite, depende de la persona", puntaje: 0 },
+      { texto: "50 kg para cualquier trabajador adulto",   puntaje: 0 },
+      { texto: "25 kg en condiciones favorables (menos si hay factores de riesgo)", puntaje: 3 },
+      { texto: "40 kg siempre que se use faja lumbar",    puntaje: 1 }
+    ]
+  },
+  {
+    texto: "Al levantar una carga del suelo, ¿cuál es la técnica correcta?",
+    opciones: [
+      { texto: "Inclinar la espalda hacia adelante manteniendo las piernas rectas", puntaje: 0 },
+      { texto: "Doblar las rodillas, mantener la espalda recta y acercar la carga al cuerpo", puntaje: 3 },
+      { texto: "Girar el tronco para tomar impulso antes de levantar", puntaje: 0 },
+      { texto: "Levantar rápido para reducir el tiempo de esfuerzo", puntaje: 1 }
+    ]
+  },
+  {
+    texto: "¿Qué parte del cuerpo es la más afectada por la manipulación incorrecta de cargas?",
+    opciones: [
+      { texto: "Muñecas y antebrazos", puntaje: 0 },
+      { texto: "Rodillas",             puntaje: 1 },
+      { texto: "Zona lumbar (parte baja de la espalda)", puntaje: 3 },
+      { texto: "Cuello y cervicales",  puntaje: 1 }
+    ]
+  },
+  {
+    texto: "¿Qué se entiende por 'distancia horizontal' en la evaluación del riesgo de manipulación de cargas?",
+    opciones: [
+      { texto: "La altura desde el suelo hasta las manos al inicio del levantamiento", puntaje: 1 },
+      { texto: "La distancia entre las manos y el centro del cuerpo al levantar la carga", puntaje: 3 },
+      { texto: "El largo o profundidad de la carga", puntaje: 0 },
+      { texto: "La distancia que se camina con la carga", puntaje: 0 }
+    ]
+  },
+  {
+    texto: "Según el método NIOSH, ¿cuándo se considera que una tarea de elevación es inaceptable (índice de levantamiento ≥ 3)?",
+    opciones: [
+      { texto: "Cuando el trabajador está cansado",                             puntaje: 0 },
+      { texto: "Cuando se supera el límite de peso recomendado más de tres veces", puntaje: 3 },
+      { texto: "Cuando la carga pesa más de 10 kg",                            puntaje: 1 },
+      { texto: "Cuando se trabaja sin guantes de protección",                  puntaje: 0 }
+    ]
+  },
+  {
+    texto: "¿Qué ventaja principal ofrecen los equipos de asistencia mecánica (transpaletas, montacargas) frente a la manipulación manual?",
+    opciones: [
+      { texto: "Aumentan la velocidad de producción únicamente",              puntaje: 1 },
+      { texto: "Eliminan o reducen significativamente la exposición al riesgo de lesiones musculoesqueléticas", puntaje: 3 },
+      { texto: "Permiten mover cualquier tipo de carga sin capacitación",     puntaje: 0 },
+      { texto: "Eliminan la necesidad de usar equipos de protección personal", puntaje: 0 }
+    ]
+  },
+  {
+    texto: "¿Cuál de las siguientes situaciones AUMENTA el riesgo al manipular cargas manualmente?",
+    opciones: [
+      { texto: "Acercar la carga al cuerpo antes de levantarla",                puntaje: 0 },
+      { texto: "Rotar el tronco mientras se sostiene una carga pesada",         puntaje: 3 },
+      { texto: "Usar un carrito de transporte",                                 puntaje: 0 },
+      { texto: "Solicitar ayuda a un compañero para cargas voluminosas",        puntaje: 0 }
+    ]
+  },
+  {
+    texto: "¿Qué se debe hacer si el trabajador debe transportar una carga a más de 1 metro de altura?",
+    opciones: [
+      { texto: "Hacerlo de una sola vez para evitar repetir el esfuerzo",       puntaje: 0 },
+      { texto: "Usar una escalera o plataforma adecuada y, de ser posible, un equipo mecánico", puntaje: 3 },
+      { texto: "Lanzar la carga si no hay herramientas disponibles",            puntaje: 0 },
+      { texto: "Agregar contrapeso para equilibrar",                            puntaje: 0 }
+    ]
+  },
+  {
+    texto: "¿Cuál es el principal riesgo de manipular cargas con el cuerpo girado respecto a los pies?",
+    opciones: [
+      { texto: "Perder el equilibrio y caer",           puntaje: 1 },
+      { texto: "Aumentar el tiempo de la tarea",        puntaje: 0 },
+      { texto: "Generar lesiones en la columna vertebral por torsión", puntaje: 3 },
+      { texto: "Reducir la capacidad visual del entorno", puntaje: 0 }
+    ]
+  },
+  {
+    texto: "Un trabajador debe apilar cajas durante 6 horas seguidas. ¿Qué medida preventiva es prioritaria?",
+    opciones: [
+      { texto: "Usar guantes gruesos para mayor agarre",                          puntaje: 1 },
+      { texto: "Establecer pausas programadas y rotación de tareas para reducir la fatiga", puntaje: 3 },
+      { texto: "Aumentar la velocidad de trabajo para terminar antes",            puntaje: 0 },
+      { texto: "Beber abundante agua durante la jornada",                        puntaje: 1 }
+    ]
+  },
+  {
+    texto: "¿Qué indica el 'índice de masa de la carga' en la evaluación ergonómica?",
+    opciones: [
+      { texto: "La densidad del material de la carga",                          puntaje: 0 },
+      { texto: "Si el peso de la carga supera el límite de carga recomendado (LCR) y en qué medida", puntaje: 3 },
+      { texto: "La temperatura de la carga a manipular",                        puntaje: 0 },
+      { texto: "El volumen total de cargas diarias en metros cúbicos",          puntaje: 0 }
+    ]
+  },
+  {
+    texto: "¿Cuál de los siguientes factores NO incrementa el riesgo en la manipulación manual de cargas?",
+    opciones: [
+      { texto: "Suelo resbaladizo o irregular",                          puntaje: 0 },
+      { texto: "Frecuencia muy alta de levantamientos",                  puntaje: 0 },
+      { texto: "Buena visibilidad del recorrido y espacio despejado",    puntaje: 3 },
+      { texto: "Carga con centro de gravedad desplazado",               puntaje: 0 }
+    ]
+  },
+  {
+    texto: "¿Por qué es importante revisar el recorrido antes de transportar una carga voluminosa?",
+    opciones: [
+      { texto: "Para calcular el tiempo que tomará la tarea",                   puntaje: 0 },
+      { texto: "Para identificar y eliminar obstáculos o superficies peligrosas que puedan causar caídas", puntaje: 3 },
+      { texto: "Para determinar el peso de la carga",                          puntaje: 0 },
+      { texto: "Para avisar a los compañeros que van a pasar",                 puntaje: 1 }
+    ]
+  },
+  {
+    texto: "¿Qué rol cumple la evaluación de riesgos ergonómicos en la manipulación de cargas dentro de una empresa?",
+    opciones: [
+      { texto: "Determinar el salario de los operarios según el esfuerzo realizado", puntaje: 0 },
+      { texto: "Identificar tareas peligrosas y establecer medidas preventivas para proteger la salud de los trabajadores", puntaje: 3 },
+      { texto: "Fijar las metas de producción diaria",                               puntaje: 0 },
+      { texto: "Controlar la asistencia del personal al área de logística",          puntaje: 0 }
+    ]
+  },
+  {
+    texto: "¿Cuál de las siguientes afirmaciones sobre el uso de faja lumbar en el trabajo es CORRECTA?",
+    opciones: [
+      { texto: "La faja lumbar elimina completamente el riesgo de lesión en la espalda", puntaje: 0 },
+      { texto: "La faja es un sustituto de la técnica correcta de levantamiento",        puntaje: 0 },
+      { texto: "La faja puede ser un complemento, pero no reemplaza la evaluación de riesgos ni la capacitación en técnicas seguras", puntaje: 3 },
+      { texto: "Solo deben usarla trabajadores mayores de 40 años",                     puntaje: 0 }
+    ]
+  }
+];
+
+/* ================================================================
+   CONFIGURACIÓN DE NIVELES
+================================================================ */
+const NIVELES = [
+  {
+    min: 0, max: 19,
+    clase: "low",
+    icono: "⚠️",
+    etiqueta: "Nivel bajo de conocimiento preventivo",
+    mensaje: "Tus resultados indican que hay áreas importantes de seguridad en manipulación de cargas que necesitan refuerzo. Te recomendamos participar en capacitaciones específicas sobre ergonomía y técnicas de levantamiento seguro. ¡Es una gran oportunidad para crecer!"
+  },
+  {
+    min: 20, max: 34,
+    clase: "med",
+    icono: "📈",
+    etiqueta: "Nivel medio de conocimiento preventivo",
+    mensaje: "Tenés una base sólida de conocimientos preventivos, pero existen conceptos clave que todavía pueden profundizarse. Recomendamos repasar los procedimientos de evaluación de riesgos y las técnicas de levantamiento correcto para alcanzar un nivel óptimo."
+  },
+  {
+    min: 35, max: 45,
+    clase: "high",
+    icono: "🏆",
+    etiqueta: "Nivel alto de conocimiento preventivo",
+    mensaje: "¡Excelente! Demostrás un conocimiento sólido sobre higiene y seguridad en la manipulación de cargas. Continuá aplicando estas buenas prácticas y compartí este conocimiento con tus compañeros para fortalecer la cultura preventiva en tu lugar de trabajo."
+  }
+];
+
+/* ================================================================
+   ESTADO DE LA APLICACIÓN
+================================================================ */
+let currentQ   = 0;          // índice de la pregunta actual
+let answers    = [];         // respuestas del usuario [{opcionIdx, puntaje}]
+let userData   = {};         // datos del registro
+
+/* ================================================================
+   HELPERS DE PANTALLAS
+================================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ================================================================
+   PANTALLA DE REGISTRO → inicio
+================================================================ */
+function startQuiz() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const sector = document.getElementById('input-sector').value.trim();
+
+  // Validación
+  let ok = true;
+  if (!nombre) {
+    document.getElementById('err-nombre').style.display = 'block';
+    ok = false;
+  } else {
+    document.getElementById('err-nombre').style.display = 'none';
+  }
+  if (!sector) {
+    document.getElementById('err-sector').style.display = 'block';
+    ok = false;
+  } else {
+    document.getElementById('err-sector').style.display = 'none';
+  }
+  if (!ok) return;
+
+  // Guardar datos del usuario
+  userData = { nombre, sector };
+
+  // Reiniciar respuestas
+  answers = new Array(PREGUNTAS.length).fill(null);
+  currentQ = 0;
+
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+/* ================================================================
+   RENDERIZAR PREGUNTA
+================================================================ */
+function renderQuestion() {
+  const total = PREGUNTAS.length;
+  const q     = PREGUNTAS[currentQ];
+
+  // Progreso
+  const pct = Math.round((currentQ / total) * 100);
+  document.getElementById('q-counter').textContent     = `Pregunta ${currentQ + 1} de ${total}`;
+  document.getElementById('q-percent').textContent     = `${pct} %`;
+  document.getElementById('progress-fill').style.width = `${pct}%`;
+
+  // Botón anterior
+  document.getElementById('btn-prev').disabled = (currentQ === 0);
+
+  // Texto del botón siguiente / finalizar
+  const isLast = (currentQ === total - 1);
+  document.getElementById('btn-next').textContent = isLast ? 'Ver resultado ✓' : 'Siguiente →';
+
+  // Construir HTML de la tarjeta
+  let opcionesHTML = '';
+  q.opciones.forEach((op, idx) => {
+    const checked  = (answers[currentQ] && answers[currentQ].opcionIdx === idx) ? 'checked' : '';
+    opcionesHTML += `
+      <li class="option-item">
+        <input type="radio" name="opcion" id="op${idx}" value="${idx}" ${checked} onchange="selectAnswer(${idx}, ${op.puntaje})">
+        <label for="op${idx}">
+          <span class="radio-circle"></span>
+          ${op.texto}
+        </label>
+      </li>`;
+  });
+
+  document.getElementById('question-card').innerHTML = `
+    <div class="q-number">Pregunta ${currentQ + 1} / ${total}</div>
+    <div class="q-text">${q.texto}</div>
+    <ul class="options-list">${opcionesHTML}</ul>
+    <div class="alert-answer" id="alert-answer">⚠ Por favor seleccioná una opción antes de continuar.</div>
+  `;
+
+  // Forzar re-animación
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  card.offsetHeight; // reflow
+  card.style.animation = '';
+}
+
+/* ================================================================
+   SELECCIONAR RESPUESTA
+================================================================ */
+function selectAnswer(opcionIdx, puntaje) {
+  answers[currentQ] = { opcionIdx, puntaje };
+  document.getElementById('alert-answer').style.display = 'none';
+}
+
+/* ================================================================
+   NAVEGAR SIGUIENTE
+================================================================ */
+function nextQuestion() {
+  // Validar que haya respuesta
+  if (!answers[currentQ]) {
+    document.getElementById('alert-answer').style.display = 'block';
+    return;
+  }
+
+  if (currentQ < PREGUNTAS.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    // Última pregunta → mostrar resultado
+    showResult();
+  }
+}
+
+/* ================================================================
+   NAVEGAR ANTERIOR
+================================================================ */
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+/* ================================================================
+   MOSTRAR RESULTADO
+================================================================ */
+function showResult() {
+  // Calcular puntaje total
+  const total = answers.reduce((acc, a) => acc + (a ? a.puntaje : 0), 0);
+  const maxPts = PREGUNTAS.length * 3;  // 45
+
+  // Determinar nivel
+  const nivel = NIVELES.find(n => total >= n.min && total <= n.max);
+
+  // Armar el banner
+  const banner = document.getElementById('result-banner');
+  banner.className = `result-banner ${nivel.clase}`;
+
+  document.getElementById('result-icon').textContent    = nivel.icono;
+  document.getElementById('result-level').textContent   = nivel.etiqueta;
+  document.getElementById('result-level').className     = `result-level ${nivel.clase}`;
+  document.getElementById('result-score').textContent   = `${total} / ${maxPts}`;
+  document.getElementById('result-message').textContent = nivel.mensaje;
+
+  // Detalle de respuestas
+  let summaryHTML = '';
+  PREGUNTAS.forEach((q, idx) => {
+    const ans    = answers[idx];
+    const opcion = ans ? q.opciones[ans.opcionIdx] : null;
+    summaryHTML += `
+      <div class="answer-row">
+        <span class="ar-score">${ans ? ans.puntaje : 0} pts</span>
+        <div class="ar-q">${idx + 1}. ${q.texto}</div>
+        <div class="ar-a">Tu respuesta: ${opcion ? opcion.texto : '—'}</div>
+      </div>`;
+  });
+  document.getElementById('answers-summary').innerHTML = summaryHTML;
+
+  // Guardar en localStorage
+  saveRecord(total, nivel);
+
+  showScreen('screen-result');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ================================================================
+   REINICIAR
+================================================================ */
+function restartQuiz() {
+  // Limpiar campos del formulario
+  document.getElementById('input-nombre').value = '';
+  document.getElementById('input-sector').value  = '';
+  userData  = {};
+  answers   = [];
+  currentQ  = 0;
+  showScreen('screen-register');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ================================================================
+   VOLVER AL INICIO (desde panel)
+================================================================ */
+function goHome() {
+  restartQuiz();
+}
+
+/* ================================================================
+   localStorage — GUARDAR REGISTRO
+================================================================ */
+function saveRecord(puntaje, nivel) {
+  const records = getRecords();
+
+  const record = {
+    id:       Date.now(),
+    fecha:    new Date().toLocaleString('es-AR'),
+    nombre:   userData.nombre,
+    sector:   userData.sector,
+    puntaje,
+    nivelClase:   nivel.clase,
+    nivelEtiqueta: nivel.etiqueta,
+    respuestas: PREGUNTAS.map((q, idx) => ({
+      pregunta: q.texto,
+      opcionElegida: answers[idx] ? q.opciones[answers[idx].opcionIdx].texto : '—',
+      puntaje:  answers[idx] ? answers[idx].puntaje : 0
+    }))
+  };
+
+  records.push(record);
+  localStorage.setItem('hys_records', JSON.stringify(records));
+}
+
+/* ================================================================
+   localStorage — OBTENER REGISTROS
+================================================================ */
+function getRecords() {
+  try {
+    return JSON.parse(localStorage.getItem('hys_records')) || [];
+  } catch {
+    return [];
+  }
+}
+
+/* ================================================================
+   localStorage — BORRAR UN REGISTRO
+================================================================ */
+function deleteRecord(id) {
+  if (!confirm('¿Borrar este registro?')) return;
+  const updated = getRecords().filter(r => r.id !== id);
+  localStorage.setItem('hys_records', JSON.stringify(updated));
+  renderPanel();
+}
+
+/* ================================================================
+   localStorage — BORRAR TODOS
+================================================================ */
+function clearAllRecords() {
+  if (!confirm('¿Estás seguro de que querés borrar TODOS los registros? Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem('hys_records');
+  renderPanel();
+}
+
+/* ================================================================
+   PANEL DE RESULTADOS
+================================================================ */
+function showPanel() {
+  showScreen('screen-panel');
+  renderPanel();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderPanel() {
+  const records = getRecords();
+  const content = document.getElementById('panel-content');
+
+  if (records.length === 0) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>Todavía no hay registros guardados.<br>Completá el cuestionario para que aparezca aquí.</p>
+      </div>`;
+    return;
+  }
+
+  // Tabla
+  let rows = '';
+  records.slice().reverse().forEach(r => {
+    rows += `
+      <tr>
+        <td>${r.fecha}</td>
+        <td><strong>${r.nombre}</strong></td>
+        <td>${r.sector}</td>
+        <td><strong>${r.puntaje} / ${PREGUNTAS.length * 3}</strong></td>
+        <td><span class="badge ${r.nivelClase}">${r.nivelEtiqueta}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="btn-detail" onclick="openDetail(${r.id})">Ver detalle</button>
+          &nbsp;
+          <button class="btn-del-row" onclick="deleteRecord(${r.id})">🗑</button>
+        </td>
+      </tr>`;
+  });
+
+  content.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Nombre</th>
+            <th>Sector / Puesto</th>
+            <th>Puntaje</th>
+            <th>Nivel</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+/* ================================================================
+   MODAL — DETALLE DE UN REGISTRO
+================================================================ */
+function openDetail(id) {
+  const record = getRecords().find(r => r.id === id);
+  if (!record) return;
+
+  let respuestasHTML = '';
+  record.respuestas.forEach((resp, idx) => {
+    respuestasHTML += `
+      <div class="answer-row">
+        <span class="ar-score">${resp.puntaje} pts</span>
+        <div class="ar-q">${idx + 1}. ${resp.pregunta}</div>
+        <div class="ar-a">Respuesta: ${resp.opcionElegida}</div>
+      </div>`;
+  });
+
+  document.getElementById('modal-content').innerHTML = `
+    <h3>📋 ${record.nombre}</h3>
+    <div class="modal-meta">
+      Sector: ${record.sector} &nbsp;·&nbsp;
+      Puntaje: ${record.puntaje} / ${PREGUNTAS.length * 3} &nbsp;·&nbsp;
+      Nivel: <strong>${record.nivelEtiqueta}</strong> &nbsp;·&nbsp;
+      ${record.fecha}
+    </div>
+    <div class="answers-summary">${respuestasHTML}</div>
+  `;
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(event) {
+  // Cerrar si se hace clic en el overlay o en el botón ✕
+  if (!event || event.target === document.getElementById('modal-overlay') || event.currentTarget.classList.contains('modal-close')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+</script>
+</body>
+</html>
